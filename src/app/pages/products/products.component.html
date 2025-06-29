@@ -1,1 +1,46 @@
-<p>products works!</p>
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-md-6 col-lg-3 mb-4" *ngFor="let product of products">
+            <div class="card h-100">
+                <img [src]="product.img" class="card-img-top" [alt]="product.name" height="200" />
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">Price: {{ product.price }}</p>
+                    <p class="card-text">Available: {{ product.availableAmount }}</p>
+
+                    <form [formGroup]="getForm(product.id)" (ngSubmit)="addToCart(product)">
+                        <div class="mb-2">
+                            <label class="form-label">
+                                Quantity:
+                                <input type="number" class="form-control" formControlName="quantity"
+                                    [min]="product.minOrderAmount" [max]="product.availableAmount" />
+                            </label>
+
+                            @if (
+                    getForm(product.id).get('quantity')?.invalid &&
+                    getForm(product.id).get('quantity')?.touched
+                  ) {
+                                <div class="text-danger small">
+                                    @if (getForm(product.id).get('quantity')?.errors?.['min']) {
+                                        <div>
+                                            Minimum rendelés: {{ product.minOrderAmount }}
+                                        </div>
+                                    }
+                                    @if (getForm(product.id).get('quantity')?.errors?.['max']) {
+                                        <div>
+                                            Nincs ennyi készleten.
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100" [disabled]="getForm(product.id).invalid">
+                            Add to Cart
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
