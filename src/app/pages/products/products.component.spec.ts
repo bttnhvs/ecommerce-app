@@ -3,7 +3,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { Products } from './products.component';
 import { ProductService } from '../../service/product.service';
 import { Product } from '../../models/product';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { BehaviorSubject, of } from 'rxjs';
 
 describe('Products', () => {
   let component: Products;
@@ -31,13 +31,13 @@ describe('Products', () => {
 
   beforeEach(async () => {
     const spy = jasmine.createSpyObj('ProductService', ['fetchProducts', 'addToCart'], {
-      products: () => mockProducts
+      products$: of(mockProducts),
+      products: mockProducts
     });
 
     await TestBed.configureTestingModule({
       imports: [Products, ReactiveFormsModule],
       providers: [
-        provideHttpClientTesting(),
         { provide: ProductService, useValue: spy }
       ]
     })
@@ -197,6 +197,16 @@ describe('Products', () => {
   describe('component properties', () => {
     it('should have selectedChanged output', () => {
       expect(component.selectedChanged).toBeTruthy();
+    });
+  });
+
+  describe('subscription management', () => {
+    it('should unsubscribe on destroy', () => {
+      const unsubscribeSpy = spyOn(component['subscription'], 'unsubscribe');
+      
+      component.ngOnDestroy();
+      
+      expect(unsubscribeSpy).toHaveBeenCalled();
     });
   });
 });

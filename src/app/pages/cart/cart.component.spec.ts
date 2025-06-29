@@ -3,7 +3,7 @@ import { Cart } from './cart.component';
 import { ProductService } from '../../service/product.service';
 import { CartItem } from '../../models/cart';
 import { Product } from '../../models/product';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { of } from 'rxjs';
 
 describe('Cart', () => {
   let component: Cart;
@@ -34,13 +34,19 @@ describe('Cart', () => {
   ];
 
   beforeEach(async () => {
-    const spy = jasmine.createSpyObj('ProductService', ['getCartItems']);
-    spy.getCartItems.and.returnValue(mockCartItems);
+    const spy = jasmine.createSpyObj('ProductService', [
+      'getCartItems', 
+      'updateCartItemQuantity', 
+      'removeFromCart', 
+      'clearCart'
+    ], {
+      cartItems$: of(mockCartItems),
+      cartItems: mockCartItems
+    });
 
     await TestBed.configureTestingModule({
       imports: [Cart],
       providers: [
-        provideHttpClientTesting(),
         { provide: ProductService, useValue: spy }
       ]
     })
@@ -95,6 +101,57 @@ describe('Cart', () => {
     });
   });
 
+  describe('updateQuantity', () => {
+    let testItem: CartItem;
+
+    beforeEach(() => {
+      testItem = { product: mockProduct1, quantity: 2 };
+    });
+
+    it('should increase quantity when change is positive', () => {
+      component.updateQuantity(testItem, 1);
+
+      expect(productService.updateCartItemQuantity).toHaveBeenCalledWith(testItem.product.id, 3);
+    });
+
+    it('should decrease quantity when change is negative', () => {
+      component.updateQuantity(testItem, -1);
+
+      expect(productService.updateCartItemQuantity).toHaveBeenCalledWith(testItem.product.id, 1);
+    });
+
+    it('should remove item when new quantity would be less than 1', () => {
+      component.updateQuantity(testItem, -2);
+
+      expect(productService.removeFromCart).toHaveBeenCalledWith(testItem.product.id);
+    });
+
+    it('should not update when new quantity exceeds available amount', () => {
+      testItem.quantity = 10; // Already at max
+      component.updateQuantity(testItem, 1);
+
+      expect(productService.updateCartItemQuantity).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('removeItem', () => {
+    it('should call removeFromCart on service', () => {
+      const testItem: CartItem = { product: mockProduct1, quantity: 2 };
+      
+      component.removeItem(testItem);
+
+      expect(productService.removeFromCart).toHaveBeenCalledWith(testItem.product.id);
+    });
+  });
+
+  describe('clearCart', () => {
+    it('should call clearCart on service', () => {
+      component.clearCart();
+
+      expect(productService.clearCart).toHaveBeenCalled();
+    });
+  });
+
   describe('component properties', () => {
     it('should have cartItems array', () => {
       expect(Array.isArray(component.cartItems)).toBe(true);
@@ -109,11 +166,13 @@ describe('Cart', () => {
     });
   });
 
-  describe('service integration', () => {
-    it('should call getCartItems from ProductService', () => {
-      component.ngOnInit();
+  describe('subscription management', () => {
+    it('should unsubscribe on destroy', () => {
+      const unsubscribeSpy = spyOn(component['subscription'], 'unsubscribe');
       
-      expect(productService.getCartItems).toHaveBeenCalled();
+      component.ngOnDestroy();
+      
+      expect(unsubscribeSpy).toHaveBeenCalled();
     });
   });
 });
@@ -123,13 +182,19 @@ describe('Cart with empty cart', () => {
   let fixture: ComponentFixture<Cart>;
 
   beforeEach(async () => {
-    const emptyCartSpy = jasmine.createSpyObj('ProductService', ['getCartItems']);
-    emptyCartSpy.getCartItems.and.returnValue([]);
+    const emptyCartSpy = jasmine.createSpyObj('ProductService', [
+      'getCartItems', 
+      'updateCartItemQuantity', 
+      'removeFromCart', 
+      'clearCart'
+    ], {
+      cartItems$: of([]),
+      cartItems: []
+    });
 
     await TestBed.configureTestingModule({
       imports: [Cart],
       providers: [
-        provideHttpClientTesting(),
         { provide: ProductService, useValue: emptyCartSpy }
       ]
     })
@@ -176,13 +241,19 @@ describe('Cart with multiple items', () => {
       { product: mockProduct2, quantity: 2 }
     ];
 
-    const multipleItemsSpy = jasmine.createSpyObj('ProductService', ['getCartItems']);
-    multipleItemsSpy.getCartItems.and.returnValue(multipleItems);
+    const multipleItemsSpy = jasmine.createSpyObj('ProductService', [
+      'getCartItems', 
+      'updateCartItemQuantity', 
+      'removeFromCart', 
+      'clearCart'
+    ], {
+      cartItems$: of(multipleItems),
+      cartItems: multipleItems
+    });
 
     await TestBed.configureTestingModule({
       imports: [Cart],
       providers: [
-        provideHttpClientTesting(),
         { provide: ProductService, useValue: multipleItemsSpy }
       ]
     })
