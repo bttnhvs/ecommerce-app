@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Product } from '../models/product';
 
 @Injectable({ providedIn: 'root' })
-export class ProductStore {
+export class ProductService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = 'https://63c10327716562671870f959.mockapi.io/products';
 

@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject, OnInit } from "@angular/core";
-import { ProductStore } from "../../service/product-store.service";
+import { ProductService } from "../../service/product.service";
+import { CartItem } from "../../models/cart";
 
 @Component({
   selector: 'app-cart',
@@ -11,10 +12,10 @@ import { ProductStore } from "../../service/product-store.service";
 })
 
 export class Cart implements OnInit {  
-  cartItems: any[] = [];
+  cartItems: CartItem[] = [];
   totalAmount = 0;
   totalPrice = 0;
-  private readonly productStore: ProductStore = inject(ProductStore);
+  private readonly productStore: ProductService = inject(ProductService);
 
   ngOnInit() {
      this.cartItems = this.productStore.getCartItems();

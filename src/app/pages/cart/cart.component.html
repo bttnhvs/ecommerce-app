@@ -1,9 +1,11 @@
 <h2>Your Cart</h2>
-<div *ngFor="let item of cartItems">
-  <h4>{{ item.product.name }}</h4>
-  <p>Quantity: {{ item.quantity }}</p>
-  <p>Subtotal: {{ item.quantity * item.product.price }}</p>
-</div>
+@for ( item of cartItems; track item.product.id) {
+  <div>
+    <h4>{{ item.product.name }}</h4>
+    <p>Quantity: {{ item.quantity }}</p>
+    <p>Subtotal: {{ item.quantity * item.product.price }}</p>
+  </div>
+}
 <hr />
 <h3>Total Quantity: {{ totalAmount }}</h3>
 <h3>Total Price: {{ totalPrice }}</h3>
