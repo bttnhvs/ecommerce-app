@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, output, OutputEmitterRef} from '@angular/core';
+import {Component, inject, OnInit, output, OutputEmitterRef, effect} from '@angular/core';
 import {FormGroup, FormControl, Validators, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { Product } from '../../models/product';
 import { ProductService } from '../../service/product.service';
@@ -16,10 +16,23 @@ export class Products implements OnInit {
   private readonly productStore: ProductService = inject(ProductService);
   public readonly selectedChanged: OutputEmitterRef<Product> = output();
 
+  constructor() {
+    // Set up an effect to watch for changes in the products signal
+    effect(() => {
+      const products = this.productStore.products();
+      if (products.length > 0) {
+        this.products = products;
+        this.initializeProductForms();
+      }
+    });
+  }
+
   ngOnInit(): void {
     this.productStore.fetchProducts();
-    const data = this.productStore.products();
-    this.products = data;
+  }
+
+  private initializeProductForms(): void {
+    this.productForms = {};
     this.products.forEach(product => {
       this.productForms[product.id] = new FormGroup({
         quantity: new FormControl(
