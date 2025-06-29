@@ -13,13 +13,13 @@ import {CommonModule} from '@angular/common';
 export class Products implements OnInit {
   products: Product[] = [];
   productForms: { [productId: string]: FormGroup } = {};
-  private readonly productStore: ProductService = inject(ProductService);
+  private readonly productService: ProductService = inject(ProductService);
   public readonly selectedChanged: OutputEmitterRef<Product> = output();
 
   constructor() {
     // Set up an effect to watch for changes in the products signal
     effect(() => {
-      const products = this.productStore.products();
+      const products = this.productService.products();
       if (products.length > 0) {
         this.products = products;
         this.initializeProductForms();
@@ -28,7 +28,7 @@ export class Products implements OnInit {
   }
 
   ngOnInit(): void {
-    this.productStore.fetchProducts();
+    this.productService.fetchProducts();
   }
 
   private initializeProductForms(): void {
@@ -61,7 +61,7 @@ export class Products implements OnInit {
     }
     this.selectedChanged.emit(product);
     console.log(product);
-    const success = this.productStore.addToCart(product, amount);
+    const success = this.productService.addToCart(product, amount);
     console.log(success);
     if (!success) {
       alert('Nem lehet ennyit hozzáadni a kosárhoz.');

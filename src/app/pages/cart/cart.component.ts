@@ -15,10 +15,10 @@ export class Cart implements OnInit {
   cartItems: CartItem[] = [];
   totalAmount = 0;
   totalPrice = 0;
-  private readonly productStore: ProductService = inject(ProductService);
+  private readonly productService: ProductService = inject(ProductService);
 
   ngOnInit() {
-     this.cartItems = this.productStore.getCartItems();
+     this.cartItems = this.productService.getCartItems();
     this.totalAmount = this.cartItems.reduce((acc, item) => acc + item.quantity, 0);
     this.totalPrice = this.cartItems.reduce((acc, item) => acc + (item.quantity * item.product.price), 0);
   }
