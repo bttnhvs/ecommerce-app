@@ -1,8 +1,9 @@
-import {Component, inject, OnInit, output, OutputEmitterRef, effect} from '@angular/core';
+import {Component, inject, OnInit, output, OutputEmitterRef, OnDestroy} from '@angular/core';
 import {FormGroup, FormControl, Validators, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { Product } from '../../models/product';
 import { ProductService } from '../../service/product.service';
 import {CommonModule} from '@angular/common';
+import { Subscription } from 'rxjs';
 
 @Component({
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
@@ -10,25 +11,31 @@ import {CommonModule} from '@angular/common';
   standalone: true,
   styleUrl: './products.component.scss'
 })
-export class Products implements OnInit {
+export class Products implements OnInit, OnDestroy {
   products: Product[] = [];
   productForms: { [productId: string]: FormGroup } = {};
   private readonly productService: ProductService = inject(ProductService);
   public readonly selectedChanged: OutputEmitterRef<Product> = output();
+  private subscription: Subscription = new Subscription();
 
   constructor() {
-    // Set up an effect to watch for changes in the products signal
-    effect(() => {
-      const products = this.productService.products();
-      if (products.length > 0) {
-        this.products = products;
-        this.initializeProductForms();
-      }
-    });
+    // Subscribe to products changes
+    this.subscription.add(
+      this.productService.products$.subscribe(products => {
+        if (products.length > 0) {
+          this.products = products;
+          this.initializeProductForms();
+        }
+      })
+    );
   }
 
   ngOnInit(): void {
     this.productService.fetchProducts();
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   private initializeProductForms(): void {

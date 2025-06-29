@@ -1,8 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, OnInit, computed } from "@angular/core";
+import { Component, inject, OnInit, OnDestroy } from "@angular/core";
 import { RouterLink } from "@angular/router";
 import { ProductService } from "../../service/product.service";
 import { CartItem } from "../../models/cart";
+import { Subscription, map } from "rxjs";
 
 @Component({
   selector: 'app-cart',
@@ -12,25 +13,34 @@ import { CartItem } from "../../models/cart";
   standalone: true,
 })
 
-export class Cart implements OnInit {  
+export class Cart implements OnInit, OnDestroy {  
   private readonly productService: ProductService = inject(ProductService);
+  private subscription: Subscription = new Subscription();
   
-  // Make cart items reactive and filter out undefined items
-  cartItems = computed(() => 
-    this.productService.cartItems().filter(item => item && item.product)
-  );
+  // Reactive cart items
+  cartItems: CartItem[] = [];
   
-  // Compute totals reactively
-  totalAmount = computed(() => 
-    this.cartItems().reduce((acc, item) => acc + item.quantity, 0)
-  );
-  
-  totalPrice = computed(() => 
-    this.cartItems().reduce((acc, item) => acc + (item.quantity * item.product.price), 0)
-  );
+  // Computed totals
+  totalAmount: number = 0;
+  totalPrice: number = 0;
 
   ngOnInit() {
-    // No need to manually load cart items anymore as they're reactive
+    // Subscribe to cart items changes
+    this.subscription.add(
+      this.productService.cartItems$.subscribe(items => {
+        this.cartItems = items.filter(item => item && item.product);
+        this.calculateTotals();
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  private calculateTotals(): void {
+    this.totalAmount = this.cartItems.reduce((acc, item) => acc + item.quantity, 0);
+    this.totalPrice = this.cartItems.reduce((acc, item) => acc + (item.quantity * item.product.price), 0);
   }
 
   updateQuantity(item: CartItem, change: number) {
