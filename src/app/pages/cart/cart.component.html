@@ -11,7 +11,7 @@
       <!-- Cart Items -->
       <div class="cart-items-section">
         <div class="section-header">
-          <h3>Cart Items ({{ totalAmount() }})</h3>
+          <h3>Cart Items ({{ totalQuantity() }})</h3>
           @if (cartItems().length > 0) {
             <button class="btn btn-secondary clear-cart-btn" (click)="clearCart()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -107,7 +107,7 @@
           
           <div class="summary-content">
             <div class="summary-row">
-              <span>Items ({{ totalAmount() }})</span>
+              <span>Items ({{ totalQuantity() }})</span>
               <span>${{ totalPrice().toFixed(2) }}</span>
             </div>
             

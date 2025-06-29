@@ -1,76 +1,54 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Product } from '../models/product';
+import { ProductsStore } from '../store/products.store';
+import { CartStore } from '../store/cart.store';
+import { ProductsEffects } from '../store/products.effects';
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'https://63c10327716562671870f959.mockapi.io/products';
+  private readonly productsStore = inject(ProductsStore);
+  private readonly cartStore = inject(CartStore);
+  private readonly productsEffects = inject(ProductsEffects);
 
-  private readonly _products = signal<Product[]>([]);
-  readonly products = this._products.asReadonly();
-
-  private readonly _cart = signal<Map<string, { product: Product; quantity: number }>>(new Map());
-  readonly cart = this._cart.asReadonly();
-
-  readonly cartItems = computed(() => {
-    const cartValues = Array.from(this._cart().values());
-    return cartValues.filter(item => item && item.product && item.quantity > 0);
-  });
+  // Expose store signals for components
+  readonly products = this.productsStore.products;
+  readonly loading = this.productsStore.loading;
+  readonly error = this.productsStore.error;
+  readonly cartItems = this.cartStore.items;
+  readonly cartTotalQuantity = this.cartStore.totalQuantity;
+  readonly cartTotalPrice = this.cartStore.totalPrice;
 
   fetchProducts() {
-    this.http.get<Product[]>(this.apiUrl).subscribe((products) => {
-      this._products.set(products);
-    });
+    this.productsEffects.loadProducts().subscribe();
   }
 
   addToCart(product: Product, amount: number): boolean {
-    if (amount < product.minOrderAmount || amount > product.availableAmount) {
-      return false;
-    }
-    const cart = new Map(this._cart());
-    const existing = cart.get(product.id);
-    if (existing) {
-      if (existing.quantity + amount > product.availableAmount) return false;
-      existing.quantity += amount;
-    } else {
-      cart.set(product.id, { product, quantity: amount });
-    }
-    product.availableAmount -= amount;
-    this._cart.set(cart);
-    return true;
+    return this.cartStore.addToCart(product, amount);
   }
 
   getCartItems() {
-    return Array.from(this._cart().values());
+    return this.cartStore.items();
   }
 
   updateCartItemQuantity(productId: string, newQuantity: number) {
-    const cart = new Map(this._cart());
-    const existing = cart.get(productId);
-    if (existing) {
-      existing.quantity = newQuantity;
-      this._cart.set(cart);
-    }
+    return this.cartStore.updateQuantity(productId, newQuantity);
   }
 
   removeFromCart(productId: string) {
-    const cart = new Map(this._cart());
-    const existing = cart.get(productId);
-    if (existing) {
-      // Restore the available amount when removing from cart
-      existing.product.availableAmount += existing.quantity;
-      cart.delete(productId);
-      this._cart.set(cart);
-    }
+    this.cartStore.removeFromCart(productId);
   }
 
   clearCart() {
-    const cart = new Map(this._cart());
-    // Restore all available amounts when clearing cart
-    cart.forEach((item) => {
-      item.product.availableAmount += item.quantity;
-    });
-    this._cart.set(new Map());
+    this.cartStore.clearCart();
+  }
+
+  getProductById(id: string): Product | undefined {
+    return this.productsStore.getProductById(id);
+  }
+
+  getProductsByCategory(category: string): Product[] {
+    return this.productsStore.getProductsByCategory(category);
   }
 } 

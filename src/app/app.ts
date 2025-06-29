@@ -1,7 +1,7 @@
 import { Component, inject, computed } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ProductService } from './service/product.service';
+import { RootStore } from './store/root.store';
 
 @Component({
   selector: 'app-root',
@@ -13,10 +13,12 @@ import { ProductService } from './service/product.service';
 export class App {
   protected title = 'ecommerce-app';
   
-  private readonly productService: ProductService = inject(ProductService);
+  private readonly rootStore = inject(RootStore);
 
-  protected cartItemCount = computed(() => {
-    const cartItems = this.productService.cartItems();
-    return cartItems.reduce((acc, item) => acc + item.quantity, 0);
-  });
+  // Use computed properties from the root store
+  protected cartItemCount = this.rootStore.cartItemCount;
+  protected isLoading = this.rootStore.isLoading;
+  protected hasError = this.rootStore.hasError;
+  protected errorMessage = this.rootStore.errorMessage;
+  protected isCartEmpty = this.rootStore.isCartEmpty;
 }

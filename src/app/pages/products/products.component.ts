@@ -1,7 +1,9 @@
 import {Component, inject, OnInit, output, OutputEmitterRef, effect} from '@angular/core';
 import {FormGroup, FormControl, Validators, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { Product } from '../../models/product';
-import { ProductService } from '../../service/product.service';
+import { ProductsStore } from '../../store/products.store';
+import { CartStore } from '../../store/cart.store';
+import { ProductsEffects } from '../../store/products.effects';
 import {CommonModule} from '@angular/common';
 
 @Component({
@@ -13,13 +15,22 @@ import {CommonModule} from '@angular/common';
 export class Products implements OnInit {
   products: Product[] = [];
   productForms: { [productId: string]: FormGroup } = {};
-  private readonly productService: ProductService = inject(ProductService);
+  
+  private readonly productsStore = inject(ProductsStore);
+  private readonly cartStore = inject(CartStore);
+  private readonly productsEffects = inject(ProductsEffects);
+  
   public readonly selectedChanged: OutputEmitterRef<Product> = output();
+
+  // Expose store signals for template
+  readonly loading = this.productsStore.loading;
+  readonly error = this.productsStore.error;
+  readonly hasProducts = this.productsStore.hasProducts;
 
   constructor() {
     // Set up an effect to watch for changes in the products signal
     effect(() => {
-      const products = this.productService.products();
+      const products = this.productsStore.products();
       if (products.length > 0) {
         this.products = products;
         this.initializeProductForms();
@@ -28,7 +39,7 @@ export class Products implements OnInit {
   }
 
   ngOnInit(): void {
-    this.productService.fetchProducts();
+    this.productsEffects.loadProducts().subscribe();
   }
 
   private initializeProductForms(): void {
@@ -59,10 +70,13 @@ export class Products implements OnInit {
       alert('A megadott mennyiség érvénytelen!');
       return;
     }
+    
     this.selectedChanged.emit(product);
     console.log(product);
-    const success = this.productService.addToCart(product, amount);
+    
+    const success = this.cartStore.addToCart(product, amount);
     console.log(success);
+    
     if (!success) {
       alert('Nem lehet ennyit hozzáadni a kosárhoz.');
     } else {
