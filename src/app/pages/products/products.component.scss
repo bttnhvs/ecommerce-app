@@ -1,0 +1,303 @@
+/* Weekly Specials Banner */
+.weekly-specials {
+  margin-bottom: 32px;
+}
+
+.specials-banner {
+  background: linear-gradient(135deg, var(--aldi-blue) 0%, var(--aldi-dark-blue) 100%);
+  border-radius: var(--aldi-radius);
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--aldi-white);
+  position: relative;
+  overflow: hidden;
+}
+
+.specials-banner::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+.specials-content h2 {
+  color: var(--aldi-white);
+  margin-bottom: 8px;
+  font-size: 2rem;
+}
+
+.specials-content p {
+  margin-bottom: 20px;
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+.specials-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.specials-icon {
+  font-size: 4rem;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
+}
+
+/* Category Filters */
+.category-filters {
+  margin-bottom: 32px;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.filter-tab {
+  background: var(--aldi-white);
+  border: 2px solid var(--aldi-border);
+  border-radius: 25px;
+  padding: 12px 24px;
+  font-weight: 600;
+  color: var(--aldi-text);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.filter-tab:hover {
+  border-color: var(--aldi-blue);
+  color: var(--aldi-blue);
+}
+
+.filter-tab.active {
+  background: var(--aldi-blue);
+  border-color: var(--aldi-blue);
+  color: var(--aldi-white);
+}
+
+/* Products Section */
+.products-section {
+  margin-bottom: 48px;
+}
+
+.products-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.products-header h3 {
+  margin: 0;
+  color: var(--aldi-dark-gray);
+}
+
+.products-count {
+  color: var(--aldi-light-text);
+  font-weight: 500;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+/* Product Card */
+.product-card {
+  background: var(--aldi-white);
+  border-radius: var(--aldi-radius);
+  box-shadow: var(--aldi-shadow);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.product-image {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  background: var(--aldi-gray);
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.05);
+}
+
+.product-badges {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.product-info {
+  padding: 20px;
+}
+
+.product-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--aldi-dark-gray);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.product-price {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.product-availability {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.availability-text {
+  font-weight: 600;
+  color: var(--aldi-green);
+}
+
+.availability-count {
+  font-size: 0.875rem;
+  color: var(--aldi-light-text);
+}
+
+/* Product Actions */
+.product-actions {
+  padding: 0 20px 20px;
+}
+
+.add-to-cart-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quantity-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quantity-label {
+  font-weight: 600;
+  color: var(--aldi-dark-gray);
+  font-size: 0.875rem;
+}
+
+.quantity-field {
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.add-to-cart-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.add-to-cart-btn:disabled {
+  background-color: var(--aldi-light-text);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.validation-errors {
+  margin-top: 8px;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-bottom: 4px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .specials-banner {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+  
+  .specials-content h2 {
+    font-size: 1.5rem;
+  }
+  
+  .filter-tabs {
+    gap: 8px;
+  }
+  
+  .filter-tab {
+    padding: 10px 16px;
+    font-size: 0.875rem;
+  }
+  
+  .products-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .specials-banner {
+    padding: 24px;
+  }
+  
+  .specials-icon {
+    font-size: 3rem;
+  }
+}

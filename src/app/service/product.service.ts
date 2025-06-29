@@ -13,7 +13,10 @@ export class ProductService {
   private readonly _cart = signal<Map<string, { product: Product; quantity: number }>>(new Map());
   readonly cart = this._cart.asReadonly();
 
-  readonly cartItems = computed(() => Array.from(this._cart().values()));
+  readonly cartItems = computed(() => {
+    const cartValues = Array.from(this._cart().values());
+    return cartValues.filter(item => item && item.product && item.quantity > 0);
+  });
 
   fetchProducts() {
     this.http.get<Product[]>(this.apiUrl).subscribe((products) => {
@@ -40,5 +43,34 @@ export class ProductService {
 
   getCartItems() {
     return Array.from(this._cart().values());
+  }
+
+  updateCartItemQuantity(productId: string, newQuantity: number) {
+    const cart = new Map(this._cart());
+    const existing = cart.get(productId);
+    if (existing) {
+      existing.quantity = newQuantity;
+      this._cart.set(cart);
+    }
+  }
+
+  removeFromCart(productId: string) {
+    const cart = new Map(this._cart());
+    const existing = cart.get(productId);
+    if (existing) {
+      // Restore the available amount when removing from cart
+      existing.product.availableAmount += existing.quantity;
+      cart.delete(productId);
+      this._cart.set(cart);
+    }
+  }
+
+  clearCart() {
+    const cart = new Map(this._cart());
+    // Restore all available amounts when clearing cart
+    cart.forEach((item) => {
+      item.product.availableAmount += item.quantity;
+    });
+    this._cart.set(new Map());
   }
 } 
