@@ -21,15 +21,12 @@ export const CartStore = signalStore(
     const productsStore = inject(ProductsStore);
     
     return {
-      // Computed cart totals
       totalQuantity: computed(() => 
         state.items().reduce((total, item) => total + item.quantity, 0)
       ),
       totalPrice: computed(() => 
         state.items().reduce((total, item) => total + (item.quantity * item.product.price), 0)
       ),
-      
-      // Helper computed properties
       isEmpty: computed(() => state.items().length === 0),
       itemCount: computed(() => state.items().length)
     };
@@ -39,7 +36,9 @@ export const CartStore = signalStore(
     
     return {
       addToCart(product: Product, quantity: number): boolean {
-        if (quantity < product.minOrderAmount || quantity > product.availableAmount) {
+        const productsStoreInstance = productsStore;
+        const originalAmount = productsStoreInstance.originalAmounts()[product.id] ?? product.availableAmount;
+        if (quantity < product.minOrderAmount || quantity > originalAmount) {
           return false;
         }
         
@@ -51,7 +50,7 @@ export const CartStore = signalStore(
           const existingItem = currentItems[existingItemIndex];
           const newQuantity = existingItem.quantity + quantity;
           
-          if (newQuantity > product.availableAmount) {
+          if (newQuantity > originalAmount) {
             return false;
           }
           
@@ -64,7 +63,6 @@ export const CartStore = signalStore(
           updatedItems = [...currentItems, { product, quantity }];
         }
         
-        // Update product availability
         productsStore.updateProductAvailability(product.id, quantity);
         
         patchState(state, { items: updatedItems });
@@ -76,7 +74,6 @@ export const CartStore = signalStore(
         const itemToRemove = currentItems.find((item: CartItem) => item.product.id === productId);
         const updatedItems = currentItems.filter((item: CartItem) => item.product.id !== productId);
         
-        // Restore product availability if item was found
         if (itemToRemove) {
           productsStore.updateProductAvailability(productId, -itemToRemove.quantity);
         }
@@ -94,8 +91,10 @@ export const CartStore = signalStore(
         
         const item = currentItems[itemIndex];
         const oldQuantity = item.quantity;
+        const productsStoreInstance = productsStore;
+        const originalAmount = productsStoreInstance.originalAmounts()[productId] ?? item.product.availableAmount;
         
-        if (quantity < item.product.minOrderAmount || quantity > item.product.availableAmount + oldQuantity) {
+        if (quantity < item.product.minOrderAmount || quantity > originalAmount) {
           return false;
         }
         
@@ -105,7 +104,6 @@ export const CartStore = signalStore(
           quantity
         };
         
-        // Update product availability (difference between old and new quantity)
         const quantityDifference = oldQuantity - quantity;
         productsStore.updateProductAvailability(productId, quantityDifference);
         
@@ -116,7 +114,6 @@ export const CartStore = signalStore(
       clearCart(): void {
         const currentItems = state.items();
         
-        // Restore all product availability
         currentItems.forEach((item: CartItem) => {
           productsStore.updateProductAvailability(item.product.id, -item.quantity);
         });

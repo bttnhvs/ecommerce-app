@@ -4,6 +4,8 @@ import { Product } from '../models/product';
 import { ProductsStore } from '../store/products.store';
 import { CartStore } from '../store/cart.store';
 import { ProductsEffects } from '../store/products.effects';
+import { tap, catchError } from 'rxjs/operators';
+import { throwError, of } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
@@ -12,7 +14,6 @@ export class ProductService {
   private readonly cartStore = inject(CartStore);
   private readonly productsEffects = inject(ProductsEffects);
 
-  // Expose store signals for components
   readonly products = this.productsStore.products;
   readonly loading = this.productsStore.loading;
   readonly error = this.productsStore.error;
@@ -21,7 +22,7 @@ export class ProductService {
   readonly cartTotalPrice = this.cartStore.totalPrice;
 
   fetchProducts() {
-    this.productsEffects.loadProducts().subscribe();
+    return this.productsEffects.loadProducts();
   }
 
   addToCart(product: Product, amount: number): boolean {

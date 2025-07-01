@@ -30,7 +30,6 @@ export class ProductsEffects {
     );
   }
 
-  // Alternative async method for components that prefer promises
   async loadProductsAsync(): Promise<Product[]> {
     try {
       this.productsStore.setLoading(true);

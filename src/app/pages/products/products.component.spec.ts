@@ -4,11 +4,18 @@ import { Products } from './products.component';
 import { ProductService } from '../../service/product.service';
 import { Product } from '../../models/product';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpClient } from '@angular/common/http';
+import { ProductsStore } from '../../store/products.store';
+import { CartStore } from '../../store/cart.store';
+import { ProductsEffects } from '../../store/products.effects';
 
 describe('Products', () => {
   let component: Products;
   let fixture: ComponentFixture<Products>;
   let productService: jasmine.SpyObj<ProductService>;
+  let productsStore: any;
+  let cartStore: any;
+  let productsEffects: any;
 
   const mockProducts: Product[] = [
     {
@@ -38,7 +45,10 @@ describe('Products', () => {
       imports: [Products, ReactiveFormsModule],
       providers: [
         provideHttpClientTesting(),
-        { provide: ProductService, useValue: spy }
+        { provide: ProductService, useValue: spy },
+        ProductsStore,
+        CartStore,
+        { provide: ProductsEffects, useValue: { loadProducts: () => ({ subscribe: () => {} }) } }
       ]
     })
     .compileComponents();
@@ -46,6 +56,13 @@ describe('Products', () => {
     fixture = TestBed.createComponent(Products);
     component = fixture.componentInstance;
     productService = TestBed.inject(ProductService) as jasmine.SpyObj<ProductService>;
+    productsStore = TestBed.inject(ProductsStore);
+    cartStore = TestBed.inject(CartStore);
+    productsEffects = TestBed.inject(ProductsEffects);
+
+    productsStore.setProducts(mockProducts);
+    fixture.detectChanges();
+    component.ngOnInit();
   });
 
   it('should create', () => {
@@ -53,16 +70,6 @@ describe('Products', () => {
   });
 
   describe('ngOnInit', () => {
-    it('should fetch products and initialize forms', () => {
-      spyOn(window, 'alert'); // Spy on alert to prevent it from showing during tests
-      
-      component.ngOnInit();
-
-      expect(productService.fetchProducts).toHaveBeenCalled();
-      expect(component.products).toEqual(mockProducts);
-      expect(Object.keys(component.productForms).length).toBe(2);
-    });
-
     it('should create form groups with correct validators for each product', () => {
       component.ngOnInit();
 
@@ -73,6 +80,16 @@ describe('Products', () => {
       expect(form2).toBeTruthy();
       expect(form1.get('quantity')?.value).toBe(1); // minOrderAmount
       expect(form2.get('quantity')?.value).toBe(2); // minOrderAmount
+    });
+
+    it('should load products on initialization', () => {
+      spyOn(productsEffects, 'loadProducts').and.returnValue({
+        subscribe: () => {}
+      } as any);
+
+      component.ngOnInit();
+
+      expect(productsEffects.loadProducts).toHaveBeenCalled();
     });
   });
 
@@ -100,19 +117,17 @@ describe('Products', () => {
       component.ngOnInit();
       mockProduct = { ...mockProducts[0] };
       mockForm = component.productForms[mockProduct.id];
-      
+      spyOn(cartStore, 'addToCart').and.callThrough();
       spyOn(window, 'alert');
       spyOn(component.selectedChanged, 'emit');
       spyOn(console, 'log');
     });
 
     it('should add product to cart when form is valid', () => {
-      productService.addToCart.and.returnValue(true);
+      cartStore.addToCart.and.returnValue(true);
       mockForm.get('quantity').setValue(3);
-
       component.addToCart(mockProduct);
-
-      expect(productService.addToCart).toHaveBeenCalledWith(mockProduct, 3);
+      expect(cartStore.addToCart).toHaveBeenCalledWith(mockProduct, 3);
       expect(component.selectedChanged.emit).toHaveBeenCalledWith(mockProduct);
       expect(mockForm.get('quantity').value).toBe(1); // Reset to minOrderAmount
     });
@@ -123,15 +138,13 @@ describe('Products', () => {
       component.addToCart(mockProduct);
 
       expect(window.alert).toHaveBeenCalledWith('A megadott mennyiség érvénytelen!');
-      expect(productService.addToCart).not.toHaveBeenCalled();
+      expect(cartStore.addToCart).not.toHaveBeenCalled();
     });
 
     it('should show alert when addToCart returns false', () => {
-      productService.addToCart.and.returnValue(false);
+      cartStore.addToCart.and.returnValue(false);
       mockForm.get('quantity').setValue(3);
-
       component.addToCart(mockProduct);
-
       expect(window.alert).toHaveBeenCalledWith('Nem lehet ennyit hozzáadni a kosárhoz.');
       expect(mockForm.get('quantity').value).toBe(3); // Should not reset
     });
@@ -198,5 +211,101 @@ describe('Products', () => {
     it('should have selectedChanged output', () => {
       expect(component.selectedChanged).toBeTruthy();
     });
+
+    it('should have loading signal', () => {
+      expect(component.loading).toBeDefined();
+      expect(typeof component.loading).toBe('function');
+    });
+
+    it('should have error signal', () => {
+      expect(component.error).toBeDefined();
+      expect(typeof component.error).toBe('function');
+    });
+
+    it('should have hasProducts signal', () => {
+      expect(component.hasProducts).toBeDefined();
+      expect(typeof component.hasProducts).toBe('function');
+    });
+  });
+
+  describe('product forms initialization', () => {
+    beforeEach(() => {
+      // Set up products in the store to trigger the effect
+      productsStore.setProducts(mockProducts);
+    });
+
+    it('should initialize product forms when products are loaded', () => {
+      // Trigger the effect by setting products
+      productsStore.setProducts(mockProducts);
+
+      expect(component.productForms).toBeDefined();
+      expect(Object.keys(component.productForms).length).toBe(2);
+    });
+
+    it('should create form with correct validators for each product', () => {
+      productsStore.setProducts(mockProducts);
+
+      const form1 = component.getForm('1');
+      const form2 = component.getForm('2');
+
+      expect(form1).toBeDefined();
+      expect(form2).toBeDefined();
+
+      // Check validators
+      const quantityControl1 = form1.get('quantity');
+      const quantityControl2 = form2.get('quantity');
+
+      expect(quantityControl1?.hasValidator).toBeDefined();
+      expect(quantityControl2?.hasValidator).toBeDefined();
+    });
+
+    it('should set initial quantity to minOrderAmount', () => {
+      productsStore.setProducts(mockProducts);
+
+      const form1 = component.getForm('1');
+      const form2 = component.getForm('2');
+
+      expect(form1.get('quantity')?.value).toBe(1); // minOrderAmount for product 1
+      expect(form2.get('quantity')?.value).toBe(2); // minOrderAmount for product 2
+    });
+  });
+
+  describe('products array', () => {
+    it('should be updated when products store changes', () => {
+      productsStore.setProducts(mockProducts);
+
+      expect(component.products).toEqual(mockProducts);
+    });
+  });
+});
+
+describe('Products with empty products list', () => {
+  let component: Products;
+  let fixture: ComponentFixture<Products>;
+  let productsStore: any;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [Products, ReactiveFormsModule],
+      providers: [
+        provideHttpClientTesting(),
+        ProductsStore,
+        CartStore,
+        { provide: ProductsEffects, useValue: { loadProducts: () => ({ subscribe: () => {} }) } },
+        { provide: HttpClient, useValue: { get: () => ({ pipe: () => ({ subscribe: () => {} }) }) } }
+      ]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(Products);
+    component = fixture.componentInstance;
+    productsStore = TestBed.inject(ProductsStore);
+  });
+
+  it('should handle empty products list', () => {
+    productsStore.setProducts([]);
+
+    expect(component.products).toEqual([]);
+    expect(component.productForms).toEqual({});
   });
 });

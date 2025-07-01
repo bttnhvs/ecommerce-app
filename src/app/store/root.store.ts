@@ -25,7 +25,6 @@ export const RootStore = signalStore(
     const cartStore = inject(CartStore);
     
     return {
-      // Computed root state
       state: computed(() => ({
         products: {
           products: productsStore.products(),
@@ -38,15 +37,11 @@ export const RootStore = signalStore(
           totalPrice: cartStore.totalPrice()
         }
       })),
-
-      // Global selectors
       isLoading: computed(() => productsStore.loading()),
       hasError: computed(() => productsStore.error() !== null),
       errorMessage: computed(() => productsStore.error()),
       cartItemCount: computed(() => cartStore.totalQuantity()),
       cartTotalPrice: computed(() => cartStore.totalPrice()),
-      
-      // Additional computed properties
       isCartEmpty: computed(() => cartStore.isEmpty()),
       productCount: computed(() => productsStore.productCount()),
       hasProducts: computed(() => productsStore.hasProducts()),
