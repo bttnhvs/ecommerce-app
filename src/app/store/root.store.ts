@@ -2,21 +2,6 @@ import { signalStore, withComputed } from '@ngrx/signals';
 import { computed, inject } from '@angular/core';
 import { ProductsStore } from './products.store';
 import { CartStore } from './cart.store';
-import { Product } from '../models/product';
-import { CartItem } from './cart.store';
-
-export interface RootState {
-  products: {
-    products: Product[];
-    loading: boolean;
-    error: string | null;
-  };
-  cart: {
-    items: CartItem[];
-    totalQuantity: number;
-    totalPrice: number;
-  };
-}
 
 export const RootStore = signalStore(
   { providedIn: 'root' },
@@ -43,9 +28,6 @@ export const RootStore = signalStore(
       cartItemCount: computed(() => cartStore.totalQuantity()),
       cartTotalPrice: computed(() => cartStore.totalPrice()),
       isCartEmpty: computed(() => cartStore.isEmpty()),
-      productCount: computed(() => productsStore.productCount()),
-      hasProducts: computed(() => productsStore.hasProducts()),
-      availableProducts: computed(() => productsStore.availableProducts()),
       outOfStockProducts: computed(() => productsStore.outOfStockProducts())
     };
   })

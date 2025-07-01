@@ -15,10 +15,5 @@ export class App {
   
   private readonly rootStore = inject(RootStore);
 
-  // Use computed properties from the root store
   protected cartItemCount = this.rootStore.cartItemCount;
-  protected isLoading = this.rootStore.isLoading;
-  protected hasError = this.rootStore.hasError;
-  protected errorMessage = this.rootStore.errorMessage;
-  protected isCartEmpty = this.rootStore.isCartEmpty;
 }

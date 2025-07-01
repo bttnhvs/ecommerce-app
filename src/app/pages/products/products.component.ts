@@ -25,7 +25,6 @@ export class Products implements OnInit {
   // Expose store signals for template
   readonly loading = this.productsStore.loading;
   readonly error = this.productsStore.error;
-  readonly hasProducts = this.productsStore.hasProducts;
 
   constructor() {
     // Set up an effect to watch for changes in the products signal

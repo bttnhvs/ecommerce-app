@@ -1,4 +1,3 @@
-/* Header Styles */
 .header {
   background: var(--aldi-white);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -34,7 +33,7 @@
   font-weight: 500;
 }
 
-/* Search Bar */
+
 .search-bar {
   flex: 1;
   max-width: 500px;
@@ -76,7 +75,6 @@
   background-color: var(--aldi-light-blue);
 }
 
-/* Navigation */
 .nav {
   display: flex;
   align-items: center;

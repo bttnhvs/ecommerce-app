@@ -18,13 +18,6 @@ export const ProductsStore = signalStore(
     originalAmounts: {}
   }),
   withComputed((state) => ({
-    productCount: computed(() => state.products().length),
-    hasProducts: computed(() => state.products().length > 0),
-    hasError: computed(() => state.error() !== null),
-    isLoading: computed(() => state.loading()),
-    availableProducts: computed(() => 
-      state.products().filter(product => product.availableAmount > 0)
-    ),
     outOfStockProducts: computed(() => 
       state.products().filter(product => product.availableAmount === 0)
     )
