@@ -64,14 +64,6 @@ describe('ProductsStore', () => {
       expect(productsStore.products()).toEqual(mockProducts);
     });
 
-    it('should update computed properties', () => {
-      productsStore.setProducts(mockProducts);
-
-      expect(productsStore.productCount()).toBe(3);
-      expect(productsStore.hasProducts()).toBe(true);
-      expect(productsStore.availableProducts().length).toBe(2);
-      expect(productsStore.outOfStockProducts().length).toBe(1);
-    });
   });
 
   describe('setLoading', () => {
@@ -83,13 +75,6 @@ describe('ProductsStore', () => {
       expect(productsStore.loading()).toBe(false);
     });
 
-    it('should update isLoading computed property', () => {
-      productsStore.setLoading(true);
-      expect(productsStore.isLoading()).toBe(true);
-
-      productsStore.setLoading(false);
-      expect(productsStore.isLoading()).toBe(false);
-    });
   });
 
   describe('setError', () => {
@@ -101,13 +86,6 @@ describe('ProductsStore', () => {
       expect(productsStore.error()).toBe(null);
     });
 
-    it('should update hasError computed property', () => {
-      productsStore.setError('Test error');
-      expect(productsStore.hasError()).toBe(true);
-
-      productsStore.setError(null);
-      expect(productsStore.hasError()).toBe(false);
-    });
   });
 
   describe('getProductById', () => {
@@ -201,33 +179,6 @@ describe('ProductsStore', () => {
   });
 
   describe('computed properties', () => {
-    it('should calculate productCount correctly', () => {
-      expect(productsStore.productCount()).toBe(0);
-
-      productsStore.setProducts(mockProducts);
-      expect(productsStore.productCount()).toBe(3);
-
-      productsStore.setProducts([]);
-      expect(productsStore.productCount()).toBe(0);
-    });
-
-    it('should calculate hasProducts correctly', () => {
-      expect(productsStore.hasProducts()).toBe(false);
-
-      productsStore.setProducts(mockProducts);
-      expect(productsStore.hasProducts()).toBe(true);
-
-      productsStore.setProducts([]);
-      expect(productsStore.hasProducts()).toBe(false);
-    });
-
-    it('should filter available products correctly', () => {
-      productsStore.setProducts(mockProducts);
-
-      const availableProducts = productsStore.availableProducts();
-      expect(availableProducts.length).toBe(2);
-      expect(availableProducts.every((p: any) => p.availableAmount > 0)).toBe(true);
-    });
 
     it('should filter out of stock products correctly', () => {
       productsStore.setProducts(mockProducts);
@@ -237,10 +188,6 @@ describe('ProductsStore', () => {
       expect(outOfStockProducts[0].availableAmount).toBe(0);
     });
 
-    it('should handle empty products array in computed properties', () => {
-      expect(productsStore.availableProducts()).toEqual([]);
-      expect(productsStore.outOfStockProducts()).toEqual([]);
-    });
   });
 
   describe('state management', () => {

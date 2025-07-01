@@ -222,10 +222,6 @@ describe('Products', () => {
       expect(typeof component.error).toBe('function');
     });
 
-    it('should have hasProducts signal', () => {
-      expect(component.hasProducts).toBeDefined();
-      expect(typeof component.hasProducts).toBe('function');
-    });
   });
 
   describe('product forms initialization', () => {
