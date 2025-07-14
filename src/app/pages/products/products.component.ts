@@ -34,7 +34,10 @@ export class Products implements OnInit {
   }
 
   ngOnInit(): void {
-    this.productsEffects.loadProducts().subscribe();
+    if(this.productsStore.products().length === 0) {
+      this.productsEffects.loadProducts().subscribe();
+    }
+
   }
 
   private initializeProductForms(): void {

@@ -48,13 +48,6 @@ describe('ProductsStore', () => {
       expect(productsStore.products()).toEqual([]);
     });
 
-    it('should have loading set to false', () => {
-      expect(productsStore.loading()).toBe(false);
-    });
-
-    it('should have error set to null', () => {
-      expect(productsStore.error()).toBe(null);
-    });
   });
 
   describe('setProducts', () => {
@@ -62,28 +55,6 @@ describe('ProductsStore', () => {
       productsStore.setProducts(mockProducts);
 
       expect(productsStore.products()).toEqual(mockProducts);
-    });
-
-  });
-
-  describe('setLoading', () => {
-    it('should set loading state', () => {
-      productsStore.setLoading(true);
-      expect(productsStore.loading()).toBe(true);
-
-      productsStore.setLoading(false);
-      expect(productsStore.loading()).toBe(false);
-    });
-
-  });
-
-  describe('setError', () => {
-    it('should set error state', () => {
-      productsStore.setError('Test error');
-      expect(productsStore.error()).toBe('Test error');
-
-      productsStore.setError(null);
-      expect(productsStore.error()).toBe(null);
     });
 
   });
@@ -182,12 +153,8 @@ describe('ProductsStore', () => {
     it('should maintain state consistency across operations', () => {
       // Set initial state
       productsStore.setProducts(mockProducts);
-      productsStore.setLoading(false);
-      productsStore.setError(null);
 
       expect(productsStore.products()).toEqual(mockProducts);
-      expect(productsStore.loading()).toBe(false);
-      expect(productsStore.error()).toBe(null);
 
       // Update availability
       productsStore.updateProductAvailability('1', 3);

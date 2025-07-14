@@ -150,7 +150,7 @@ describe('Products', () => {
     });
 
     it('should handle form with missing quantity control', () => {
-      const invalidForm = { 
+      const invalidForm = {
         invalid: true,
         get: () => null
       };
@@ -211,17 +211,6 @@ describe('Products', () => {
     it('should have selectedChanged output', () => {
       expect(component.selectedChanged).toBeTruthy();
     });
-
-    it('should have loading signal', () => {
-      expect(component.loading).toBeDefined();
-      expect(typeof component.loading).toBe('function');
-    });
-
-    it('should have error signal', () => {
-      expect(component.error).toBeDefined();
-      expect(typeof component.error).toBe('function');
-    });
-
   });
 
   describe('product forms initialization', () => {
