@@ -31,7 +31,7 @@ describe('CartStore', () => {
     });
     cartStore = TestBed.inject(CartStore);
     productsStore = TestBed.inject(ProductsStore);
-    
+
     productsStore.setProducts([mockProduct1, mockProduct2]);
   });
 
@@ -52,9 +52,6 @@ describe('CartStore', () => {
       expect(cartStore.totalPrice()).toBe(0);
     });
 
-    it('should be empty', () => {
-      expect(cartStore.isEmpty()).toBe(true);
-    });
 
     it('should have zero item count', () => {
       expect(cartStore.itemCount()).toBe(0);
@@ -197,7 +194,6 @@ describe('CartStore', () => {
       expect(cartStore.items().length).toBe(0);
       expect(cartStore.totalQuantity()).toBe(0);
       expect(cartStore.totalPrice()).toBe(0);
-      expect(cartStore.isEmpty()).toBe(true);
       expect(cartStore.itemCount()).toBe(0);
     });
 
@@ -287,14 +283,5 @@ describe('CartStore', () => {
       expect(cartStore.totalPrice()).toBe(0);
     });
 
-    it('should update isEmpty correctly', () => {
-      expect(cartStore.isEmpty()).toBe(true);
-
-      cartStore.addToCart(mockProduct1, 1);
-      expect(cartStore.isEmpty()).toBe(false);
-
-      cartStore.clearCart();
-      expect(cartStore.isEmpty()).toBe(true);
-    });
   });
-}); 
+});

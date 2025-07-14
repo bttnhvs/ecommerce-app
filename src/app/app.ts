@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RootStore } from './store/root.store';
@@ -11,8 +11,6 @@ import { RootStore } from './store/root.store';
   standalone: true,
 })
 export class App {
-  protected title = 'ecommerce-app';
-  
   private readonly rootStore = inject(RootStore);
 
   protected cartItemCount = this.rootStore.cartItemCount;

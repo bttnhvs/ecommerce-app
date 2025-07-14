@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, finalize, tap, lastValueFrom } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { ProductsStore } from './products.store';
 import { Product } from '../models/product';
+import { v4 as uuidv4 } from 'uuid';
+
 
 @Injectable({
   providedIn: 'root'
@@ -13,36 +15,15 @@ export class ProductsEffects {
   private apiUrl = 'https://63c10327716562671870f959.mockapi.io/products';
 
   loadProducts(): Observable<Product[]> {
-    this.productsStore.setLoading(true);
-    this.productsStore.setError(null);
-    
     return this.http.get<Product[]>(this.apiUrl).pipe(
       tap(products => {
-        this.productsStore.setProducts(products);
-      }),
-      catchError(error => {
-        this.productsStore.setError('Failed to fetch products');
-        throw error;
-      }),
-      finalize(() => {
-        this.productsStore.setLoading(false);
+        const productsWithIds = products.map(product => ({
+          ...product,
+          id: uuidv4()
+        }));
+
+        this.productsStore.setProducts(productsWithIds);
       })
     );
   }
-
-  async loadProductsAsync(): Promise<Product[]> {
-    try {
-      this.productsStore.setLoading(true);
-      this.productsStore.setError(null);
-      
-      const products = await lastValueFrom(this.http.get<Product[]>(this.apiUrl));
-      this.productsStore.setProducts(products);
-      return products;
-    } catch (error) {
-      this.productsStore.setError('Failed to fetch products');
-      throw error;
-    } finally {
-      this.productsStore.setLoading(false);
-    }
-  }
-} 
+}

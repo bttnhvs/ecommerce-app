@@ -171,23 +171,11 @@ describe('ProductsStore', () => {
 
     it('should do nothing for non-existent product', () => {
       const originalProducts = productsStore.products();
-      
+
       productsStore.updateProductAvailability('999', 3);
 
       expect(productsStore.products()).toEqual(originalProducts);
     });
-  });
-
-  describe('computed properties', () => {
-
-    it('should filter out of stock products correctly', () => {
-      productsStore.setProducts(mockProducts);
-
-      const outOfStockProducts = productsStore.outOfStockProducts();
-      expect(outOfStockProducts.length).toBe(1);
-      expect(outOfStockProducts[0].availableAmount).toBe(0);
-    });
-
   });
 
   describe('state management', () => {
@@ -211,4 +199,4 @@ describe('ProductsStore', () => {
       expect(unchangedProduct?.availableAmount).toBe(5);
     });
   });
-}); 
+});

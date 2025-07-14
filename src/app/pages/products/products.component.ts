@@ -15,16 +15,12 @@ import {CommonModule} from '@angular/common';
 export class Products implements OnInit {
   products: Product[] = [];
   productForms: { [productId: string]: FormGroup } = {};
-  
+
   private readonly productsStore = inject(ProductsStore);
   private readonly cartStore = inject(CartStore);
   private readonly productsEffects = inject(ProductsEffects);
-  
-  public readonly selectedChanged: OutputEmitterRef<Product> = output();
 
-  // Expose store signals for template
-  readonly loading = this.productsStore.loading;
-  readonly error = this.productsStore.error;
+  public readonly selectedChanged: OutputEmitterRef<Product> = output();
 
   constructor() {
     // Set up an effect to watch for changes in the products signal
@@ -46,7 +42,7 @@ export class Products implements OnInit {
     this.products.forEach(product => {
       this.productForms[product.id] = new FormGroup({
         quantity: new FormControl(
-          product.minOrderAmount,
+          {value: product.minOrderAmount,  disabled: product.availableAmount === 0},
           [
             Validators.required,
             Validators.min(product.minOrderAmount),
@@ -69,13 +65,13 @@ export class Products implements OnInit {
       alert('A megadott mennyiség érvénytelen!');
       return;
     }
-    
+
     this.selectedChanged.emit(product);
     console.log(product);
-    
+
     const success = this.cartStore.addToCart(product, amount);
     console.log(success);
-    
+
     if (!success) {
       alert('Nem lehet ennyit hozzáadni a kosárhoz.');
     } else {

@@ -31,7 +31,7 @@
             <h3>Our Products</h3>
             <div class="products-count">{{ products.length }} items available</div>
         </div>
-        
+
         <div class="products-grid">
             @for (product of products; track product.id) {
                 <div class="product-card">
@@ -46,7 +46,7 @@
                             }
                         </div>
                     </div>
-                    
+
                     <div class="product-info">
                         <h4 class="product-name">{{ product.name | titlecase }}</h4>
                         <div class="product-price">
@@ -55,7 +55,7 @@
                                 <span class="price-old">${{ (product.price * 1.2).toFixed(2) }}</span>
                             }
                         </div>
-                        
+
                         <div class="product-availability">
                             <span class="availability-text">
                                 {{ product.availableAmount > 0 ? 'In Stock' : 'Out of Stock' }}
@@ -63,21 +63,20 @@
                             <span class="availability-count">({{ product.availableAmount }} available)</span>
                         </div>
                     </div>
-                    
+
                     <div class="product-actions">
                         <form [formGroup]="getForm(product.id)" (ngSubmit)="addToCart(product)" class="add-to-cart-form">
                             <div class="quantity-input">
                                 <label class="quantity-label">Quantity:</label>
-                                <input 
-                                    type="number" 
-                                    class="form-control quantity-field" 
+                                <input
+                                    type="number"
+                                    class="form-control quantity-field"
                                     formControlName="quantity"
-                                    [min]="product.minOrderAmount" 
+                                    [min]="product.minOrderAmount"
                                     [max]="product.availableAmount"
-                                    [disabled]="product.availableAmount === 0"
                                 />
                             </div>
-                            
+
                             @if (getForm(product.id).get('quantity')?.invalid && getForm(product.id).get('quantity')?.touched) {
                                 <div class="validation-errors">
                                     @if (getForm(product.id).get('quantity')?.errors?.['min']) {
@@ -92,10 +91,10 @@
                                     }
                                 </div>
                             }
-                            
-                            <button 
-                                type="submit" 
-                                class="btn btn-primary add-to-cart-btn" 
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary add-to-cart-btn"
                                 [disabled]="getForm(product.id).invalid || product.availableAmount === 0"
                             >
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
