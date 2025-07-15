@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Products } from './products.component';
-import { ProductService } from '../../service/product.service';
 import { Product } from '../../models/product';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { HttpClient } from '@angular/common/http';
@@ -12,7 +11,6 @@ import { ProductsEffects } from '../../store/products.effects';
 describe('Products', () => {
   let component: Products;
   let fixture: ComponentFixture<Products>;
-  let productService: jasmine.SpyObj<ProductService>;
   let productsStore: any;
   let cartStore: any;
   let productsEffects: any;
@@ -37,15 +35,11 @@ describe('Products', () => {
   ];
 
   beforeEach(async () => {
-    const spy = jasmine.createSpyObj('ProductService', ['fetchProducts', 'addToCart'], {
-      products: () => mockProducts
-    });
 
     await TestBed.configureTestingModule({
       imports: [Products, ReactiveFormsModule],
       providers: [
         provideHttpClientTesting(),
-        { provide: ProductService, useValue: spy },
         ProductsStore,
         CartStore,
         { provide: ProductsEffects, useValue: { loadProducts: () => ({ subscribe: () => {} }) } }
@@ -55,7 +49,6 @@ describe('Products', () => {
 
     fixture = TestBed.createComponent(Products);
     component = fixture.componentInstance;
-    productService = TestBed.inject(ProductService) as jasmine.SpyObj<ProductService>;
     productsStore = TestBed.inject(ProductsStore);
     cartStore = TestBed.inject(CartStore);
     productsEffects = TestBed.inject(ProductsEffects);
@@ -82,14 +75,15 @@ describe('Products', () => {
       expect(form2.get('quantity')?.value).toBe(2); // minOrderAmount
     });
 
-    it('should load products on initialization', () => {
-      spyOn(productsEffects, 'loadProducts').and.returnValue({
+    it('should call loadProducts when products store is empty', () => {
+      productsStore.setProducts([]);
+      const loadSpy = spyOn(productsEffects, 'loadProducts').and.returnValue({
         subscribe: () => {}
-      } as any);
+      });
 
       component.ngOnInit();
 
-      expect(productsEffects.loadProducts).toHaveBeenCalled();
+      expect(loadSpy).toHaveBeenCalled();
     });
   });
 
